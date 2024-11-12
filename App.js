@@ -1,86 +1,82 @@
-import { React, useState } from "react";
-import Axios from "axios";
-import "./App.css";
-import { FaSearch } from "react-icons/fa";
-import { FcSpeaker } from "react-icons/fc";
+import React, { useState } from 'react';
+import '../Styles/Avatar.css';
+import Axios from 'axios';
 
-function App() {
-  // Setting up the initial states using react hook 'useState'
+const Avatar = () => {
 
-  const [data, setData] = useState("");
-  const [searchWord, setSearchWord] = useState("");
+    // Setting up the initial states using react hook 'useState'
+    const [sprite, setSprite] = useState("bottts");
+    const [seed, setSeed] = useState(1000);
+    
+    // Function to set the current sprite type
+    function handleSprite(spritetype) {
+        setSprite(spritetype);
+    }
+    
+    // Function to generate random seeds for the API
+    function handleGenerate() {
+        let x = Math.floor(Math.random() * 1000);
+        setSeed(x);
+    }
+    
+    // Function to download image and save it in our computer
+    function downloadImage() {
+        Axios({
+            method: "get",
+            url: `https://avatars.dicebear.com/api/${sprite}/${seed}.svg`,
+            responseType: "arraybuffer"
+        })
+        .then((response) => {
+            var link = document.createElement("a");
+            link.href = window.URL.createObjectURL(
+                new Blob([response.data], 
+                { type: "application/octet-stream" })
+            );
+            link.download = `${seed}.svg`;
+            document.body.appendChild(link);
+            link.click();
+            setTimeout(function () {
+                window.URL.revokeObjectURL(link);
+            }, 200);
+        })
+        .catch((error) => { });
+    }
 
-  // Function to fetch information on button 
-  // click, and set the data accordingly
-  function getMeaning() {
-    Axios.get(
-      `https://api.dictionaryapi.dev/api/v2/entries/en_US/${searchWord}`
-    ).then((response) => {
-      setData(response.data[0]);
-    });
-  }
-
-  // Function to play and listen the 
-  // phonetics of the searched word
-  function playAudio() {
-    let audio = new Audio(data.phonetics[0].audio);
-    audio.play();
-  }
-
-  return (
-    <div className="App">
-      <h1>Free Dictionary</h1>
-      <div className="searchBox">
-
-        // Taking user input
-        <input
-          type="text"
-          placeholder="Search..."
-          onChange={(e) => {
-            setSearchWord(e.target.value);
-          }}
-        />
-        <button
-          onClick={() => {
-            getMeaning();
-          }}
-        >
-          <FaSearch size="20px" />
-        </button>
-      </div>
-      {data && (
-        <div className="showResults">
-          <h2>
-            {data.word}{" "}
-            <button
-              onClick={() => {
-                playAudio();
-              }}
-            >
-              <FcSpeaker size="26px" />
-            </button>
-          </h2>
-          <h4>Parts of speech:</h4>
-
-          
-<p>{data.meanings[0].partOfSpeech}</p>
-
-
-          <h4>Definition:</h4>
-
-          
-<p>{data.meanings[0].definitions[0].definition}</p>
-
-
-          <h4>Example:</h4>
-
-          
-<p>{data.meanings[0].definitions[0].example}</p>
-
+    return (
+        <div className="container">
+            <div className="nav">
+                <p>Random Avatar Generator</p>
+            </div>
+            <div className="home">
+                <div className="btns">
+                    <button onClick={() => { 
+                        handleSprite("avataaars") }}>Human</button>
+                    <button onClick={() => { 
+                        handleSprite("human") }}>Pixel</button>
+                    <button onClick={() => { 
+                        handleSprite("bottts") }}>Bots</button>
+                    <button onClick={() => { 
+                        handleSprite("jdenticon") }}>Vector</button>
+                    <button onClick={() => { 
+                        handleSprite("identicon") }}>Identi</button>
+                    <button onClick={() => { 
+                        handleSprite("gridy") }}>Alien</button>
+                    <button onClick={() => { 
+                        handleSprite("micah") }}>Avatars</button>
+                </div>
+                <div className="avatar">
+                    <img src=
+{`https://avatars.dicebear.com/api/${sprite}/${seed}.svg`} alt="Sprite" />
+                </div>
+                <div className="generate">
+                    <button id="gen" onClick={() => { 
+                        handleGenerate() }}>Next</button>
+                    <button id="down" onClick={() => { 
+                        downloadImage() }}>Download</button>
+                </div>
+            </div>
         </div>
-      )}
-    </div>
-  );
+    )
 }
 
-export default App;
+export default Avatar;
